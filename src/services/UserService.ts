@@ -51,4 +51,22 @@ export default class UserService {
             console.error(error)
         }
     }
+
+    async createUser(user: IUser): Promise<void>{
+        try{
+            const json = await fetch(url+'/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8'
+                },
+                body: JSON.stringify(user)
+            })
+            const response = await json.json()
+            this.user.value = await response
+        }
+        catch(error){
+            console.log('Error creating user')
+        }
+    }
+
 }

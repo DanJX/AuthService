@@ -1,28 +1,115 @@
 <script setup lang="ts">
+// import type IUser from '@/interfaces/IUser';
+import UserService from '@/services/UserService';
+import { onMounted, ref, type ComputedRef, type Ref, computed } from 'vue';
+
+
+const name: Ref<string> = ref('');
+const email: Ref<string> = ref('');
+const password: Ref<string> = ref('');
+const confirmPassword: Ref<string> = ref('');
+const errors: Ref<Array<{ field: string; message: string }>> = ref([]);
+
+const service = new UserService();
+// const users: Ref<IUser[]> = service.getUsers()
+
+const changeButtonState: ComputedRef<boolean> = computed(() => {
+    return errors.value.length === 0;
+});
+
+const submit = async () => {
+    clearErrors();
+
+    // let id;
+    // if (users.value.length > 0) {
+    //     id = users.value[users.value.length - 1].id + 1;
+    // } else {
+    //     id = 1;
+    // }
+
+    const user = {
+        // id: id,
+        name: name.value,
+        email: email.value,
+        password: password.value,
+    };
+    await service.createUser(user);
+}
+
+const validateForm = () => {
+    clearErrors();
+    if (name.value.trim() === '') {
+        errors.value.push({ field: 'name', message: 'El nombre es requerido' });
+    }
+
+    if (email.value.trim() === '') {
+        errors.value.push({ field: 'email', message: 'El correo es requerido' });
+    }
+
+    if (email.value !== '' && !/^\S+@\S+\.\S+$/.test(email.value)) {
+        errors.value.push({ field: 'email', message: 'El correo no es válido' });
+    }
+
+    if (password.value.length < 6 || password.value.trim() === '') {
+        errors.value.push({ field: 'password', message: 'La contraseña es requerida y debe tener al menos 6 caracteres' });
+    }
+
+    if (confirmPassword.value === '') {
+        errors.value.push({ field: 'confirmPassword', message: 'La confirmación de contraseña es requerida' });
+    }
+
+    if (password.value !== confirmPassword.value) {
+        errors.value.push({ field: 'confirmPassword', message: 'Las contraseñas no coinciden' });
+    }
+
+}
+
+const clearErrors = () => {
+    errors.value = [];
+
+};
+
+onMounted(() => {
+    validateForm();
+    // await service.fetchAllUsers()
+});
+
 </script>
 
 <template>
     <div class="container">
-        <form class="form">
+        <form class="form" @submit.prevent="submit()">
             <p class="title">Registro </p>
             <p class="message">Crear un nuevo usuario</p>
             <label>
-                <input class="input" type="text" placeholder="">
+                <input class="input" type="text" @input="validateForm()" v-model="name">
                 <span>Nombre</span>
             </label>
+            <span v-if="errors.some(error => error.field === 'name')" class="error">
+                {{ errors.find(error => error.field === 'name')?.message }}
+            </span>
             <label>
-                <input class="input" type="email" placeholder="">
+                <input class="input" type="email" @input="validateForm()" v-model="email">
                 <span>Correo</span>
             </label>
+            <span v-if="errors.some(error => error.field === 'email')" class="error">
+                {{ errors.find(error => error.field === 'email')?.message }}
+            </span>
             <label>
-                <input class="input" type="password" placeholder="">
+                <input class="input" type="password" @input="validateForm()" v-model="password">
                 <span>Contraseña</span>
             </label>
+            <span v-if="errors.some(error => error.field === 'password')" class="error">
+                {{ errors.find(error => error.field === 'password')?.message }}
+            </span>
             <label>
-                <input class="input" type="password" placeholder="">
+                <input class="input" type="password" @input="validateForm()" v-model="confirmPassword">
                 <span>Confirmación de contraseña</span>
             </label>
-            <button class="submit">Crear</button>
+            <span v-if="errors.some(error => error.field === 'confirmPassword')" class="error">
+                {{ errors.find(error => error.field === 'confirmPassword')?.message }}
+            </span>
+            <button class="submit" :disabled="!changeButtonState">Crear</button>
         </form>
     </div>
 </template>
@@ -140,9 +227,25 @@
     transform: .3s ease;
     background-color: #41B883;
 
-    &:hover {
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    &:hover:enabled {
         background-color: #41b88385;
     }
+}
+
+.error {
+    color: white;
+    font-size: 1.1rem;
+    background-color: #da3737;
+    padding: 5px;
+    border: 2px solid black;
+    border-radius: 5px;
+    display: block;
+    margin-top: 5px;
 }
 
 @keyframes pulse {

@@ -25,7 +25,13 @@ onMounted(async () => {
                 </svg>
             </div>
             <p class="name-client"> {{ user.name }}
+                <span>{{ user.website }}
+                </span>
+            </p>
+            <p class="name-client"> Contacto:
                 <span>{{ user.email }}
+                </span>
+                <span>{{ user.phone }}
                 </span>
             </p>
             <div class="social-media">
