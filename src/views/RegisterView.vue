@@ -32,8 +32,10 @@ const submit = async () => {
         name: name.value,
         email: email.value,
         password: password.value,
+        group: 'IDYGS82'
     };
     await service.createUser(user);
+    
 }
 
 const validateForm = () => {

@@ -18,7 +18,7 @@ const router = createRouter({
       component: BlogView
     },
     {
-      path: '/blog/:id',
+      path: '/blog/:email',
       name: 'user',
       component: UserView
     },
